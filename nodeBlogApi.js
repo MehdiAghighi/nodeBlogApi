@@ -12,6 +12,7 @@ require('dotenv').config();
 
 // Routes
 const feedRoutes = require('./routes/feed');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -55,14 +56,17 @@ app.use((req, res, next) => {
 })
 
 app.use('/feed', feedRoutes);
+app.use('/auth', authRoutes);
 
 app.use((err, req, res, next) => {
     console.log(err);
     const status = err.statusCode || 500;
     const message = err.message;
+    const data = err.data;
     res.status(status)
         .json({
             message: message,
+            data: data
         })
 })
 
