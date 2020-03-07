@@ -7,10 +7,13 @@ const { body } = require('express-validator');
 // Controllers
 const feedController = require('../controllers/feed');
 
+// MiddleWares
+const { isAuth } = require('../middlewares/is-auth');
+
 const router = express.Router()
 
 // GET /feed/posts
-router.get('/posts', feedController.getPosts);
+router.get('/posts', isAuth, feedController.getPosts);
 
 // POST /feed/post
 router.post('/post', [
@@ -22,9 +25,9 @@ router.post('/post', [
         .isLength({ min: 5 })
 ], feedController.createPost);
 
-router.get('/post/:postId', feedController.getPost);
+router.get('/post/:postId', isAuth, feedController.getPost);
 
-router.put('/post/:postId', [
+router.put('/post/:postId', isAuth, [
     body('title')
         .trim()
         .isLength({ min: 5 }),
