@@ -56,7 +56,6 @@ exports.createPost = (req, res, next) => {
     const imageUrl = req.file.path;
     const title = req.body.title;
     const content = req.body.content;
-    console.log(req.userId);
     const post = new Post({
         title: title,
         content: content,
@@ -138,6 +137,11 @@ exports.updatePost = (req, res, next) => {
                 error.statusCode = 400;
                 throw error;
             }
+            if (post.creator.toString() !== req.userId) {
+                const error = new Error("You don't have premission to do this");
+                error.statusCode = 403;
+                throw error;
+            }
             if (imageUrl !== post.imageUrl) {
                 clearImage(post.imageUrl)
             }
@@ -171,11 +175,15 @@ exports.deletePost = (req, res, next) => {
                 throw error;
             }
             // Check User
+            if (post.creator.toString() !== req.userId) {
+                const error = new Error("You don't have premission to do this");
+                error.statusCode = 403;
+                throw error;
+            }
             clearImage(post.imageUrl);
             return Post.findByIdAndRemove(postId)
         })
         .then(result => {
-            console.log(result);
             return res.status(200).json({
                 message: 'Deleted Succesfuly'
             })
