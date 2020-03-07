@@ -72,7 +72,8 @@ app.use((err, req, res, next) => {
 
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 })
     .then(res => {
         app.listen(8080);
