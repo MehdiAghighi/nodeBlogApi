@@ -121,9 +121,12 @@ exports.updatePost = (req, res, next) => {
     const title = req.body.title;
     const content = req.body.content;
     let imageUrl = req.body.image;
+
+    // console.log(req.file)
     if (req.file) {
         imageUrl = req.file.path
     }
+    // console.log(imageUrl)
     if (!imageUrl) {
         const error = new Error('No File Picked.')
         error.statusCode = 422;
@@ -142,12 +145,12 @@ exports.updatePost = (req, res, next) => {
                 error.statusCode = 403;
                 throw error;
             }
-            if (imageUrl !== post.imageUrl) {
+            if (req.file) {
                 clearImage(post.imageUrl)
+                post.imageUrl = imageUrl;
             }
             post.title = title;
             post.content = content;
-            post.imageUrl = imageUrl;
             return post.save()
         })
         .then(result => {

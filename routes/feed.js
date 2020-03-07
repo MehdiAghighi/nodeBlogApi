@@ -36,6 +36,6 @@ router.put('/post/:postId', isAuth, [
         .isLength({ min: 5 })
 ], feedController.updatePost);
 
-router.delete('/post/:postId', feedController.deletePost);
+router.delete('/post/:postId', isAuth, feedController.deletePost);
 
 module.exports = router;
