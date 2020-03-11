@@ -25,6 +25,7 @@ exports.getPosts = (req, res, next) => {
             totalItems = count;
             return Post.find()
                 .populate('creator')
+                .sort({createdAt: -1})
                 .skip((currentPage - 1) * perPage)
                 .limit(perPage)
         })
@@ -80,7 +81,10 @@ exports.createPost = (req, res, next) => {
                 action: 'CREATE',
                 post: {
                     ...post._doc,
-                    creator: {_id: result._id, name : result._doc.name}
+                    creator: {
+                        _id: result._id,
+                        name: result._doc.name
+                    }
                 }
             })
             res.status(201).json({
@@ -147,13 +151,14 @@ exports.updatePost = (req, res, next) => {
     }
 
     Post.findById(postId)
+        .populate('creator')
         .then(post => {
             if (!post) {
                 const error = new Error('No Post Found.')
                 error.statusCode = 400;
                 throw error;
             }
-            if (post.creator.toString() !== req.userId) {
+            if (post.creator._id.toString() !== req.userId) {
                 const error = new Error("You don't have premission to do this");
                 error.statusCode = 403;
                 throw error;
@@ -167,6 +172,10 @@ exports.updatePost = (req, res, next) => {
             return post.save()
         })
         .then(result => {
+            io.getIO().emit('posts', {
+                action: 'UPDATE',
+                post: result
+            })
             res.status(200).json({
                 message: "updated succesfuly",
                 post: result
@@ -207,6 +216,7 @@ exports.deletePost = (req, res, next) => {
             return user.save();
         })
         .then(result => {
+            io.getIO().emit('posts', { action: 'DELETE', post: postId });
             return res.status(200).json({
                 message: 'Deleted Succesfuly'
             })
